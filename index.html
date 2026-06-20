@@ -2866,7 +2866,7 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 // ═══════════════════════════════════════════
-//   УМНЫЙ ИИ-АССИСТЕНТ (Версия БЕЗ VPN)
+//   УМНЫЙ ИИ-АССИСТЕНТ (Глобальная база TMDB - Прямой доступ)
 // ═══════════════════════════════════════════
 
 // Глобальные переменные для памяти ИИ
@@ -2882,18 +2882,17 @@ async function openSmartAI(id) {
 
   const terminal = document.getElementById('aiTerminal');
   const recBtns = document.getElementById('aiRecBtns');
-  terminal.innerHTML = 'Обход блокировок. Подключение к серверу... <span class="cursor-blink"></span>';
+  terminal.innerHTML = 'Подключаюсь к глобальной базе данных TMDB... <span class="cursor-blink"></span>';
   recBtns.innerHTML = '';
   openModal('aiModal');
 
+  // Сбрасываем счетчик страниц при новом поиске
   currentAiPage = 1;
   currentAiTitle = item.title;
 
   try {
-    // 1. Прячем запрос к TMDB внутрь прокси-сервера (AllOrigins)
-    const tmdbSearch = `https://api.themoviedb.org/3/search/multi?api_key=75f0a97d0a8fc646b9fe19406611bb8a&query=${encodeURIComponent(item.title)}&language=ru-RU`;
-    const searchUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(tmdbSearch)}`;
-    
+    // 1. Ищем ID фильма/сериала напрямую (БЕЗ ПРОКСИ)
+    const searchUrl = `https://api.themoviedb.org/3/search/multi?api_key=75f0a97d0a8fc646b9fe19406611bb8a&query=${encodeURIComponent(item.title)}&language=ru-RU`;
     const searchRes = await fetch(searchUrl).then(r => r.json());
     
     if (!searchRes.results || searchRes.results.length === 0) throw new Error("Тайтл не найден в базе");
@@ -2904,7 +2903,7 @@ async function openSmartAI(id) {
     await fetchRecommendations();
   } catch(e) {
     console.error("Детали ошибки ИИ:", e);
-    terminal.innerHTML = `[ СИСТЕМНЫЙ СБОЙ ]<br>Причина: ${e.message}<br><br>> Совет: проверь правильность названия фильма.`;
+    terminal.innerHTML = `[ СИСТЕМНЫЙ СБОЙ ]<br>Причина: ${e.message}<br><br>> Совет: проверь правильность названия фильма или включи VPN.`;
   }
 }
 
@@ -2920,10 +2919,8 @@ async function fetchRecommendations() {
   if (oldBtn) oldBtn.remove();
 
   try {
-    // 3. Прячем запрос рекомендаций к TMDB внутрь прокси-сервера
-    const tmdbRec = `https://api.themoviedb.org/3/${currentAiType}/${currentAiTmdbId}/recommendations?api_key=75f0a97d0a8fc646b9fe19406611bb8a&language=ru-RU&page=${currentAiPage}`;
-    const recUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(tmdbRec)}`;
-    
+    // Запрашиваем страницу с рекомендациями напрямую (БЕЗ ПРОКСИ)
+    const recUrl = `https://api.themoviedb.org/3/${currentAiType}/${currentAiTmdbId}/recommendations?api_key=75f0a97d0a8fc646b9fe19406611bb8a&language=ru-RU&page=${currentAiPage}`;
     const recRes = await fetch(recUrl).then(r => r.json());
     
     const recs = recRes.results || [];
